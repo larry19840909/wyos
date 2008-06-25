@@ -1,0 +1,3 @@
+---- WY_TimeTSS Matches (2 in 2 files) ----
+Cpu.c (kernel):extern WY_TSS		WY_TimeTSS;
+Io.c (io):WY_TSS		WY_TimeTSS;

@@ -1,0 +1,20 @@
+0:userputc		//输出一个字符
+1:usercls		//清屏
+9:GetTID		//获得自己的线程号
+10:GetPID		//获得自己的进程号
+11:CreateProcess	//创建一个进程	
+12:ExitProcess		//退出一个进程
+13:GetSystemInfo	//获得系统信息，包括内核信息，存在进程数目一类	
+14:GetProcInfo		//获得进程信息，包括所有进程
+15:SetForce		//设置指定进程为获得焦点，因为键盘和鼠标的数据都是通过消息来发送			//的
+16:Sleep		//休眠
+17:SendMessage		//向指定进程发送消息
+18:ReciveMessage	//接受消息
+20:GetMemInfo		//获得可用物理内存信息，
+21:malloc		//申请一块内存
+22:free			//释放一块内存
+30:CreateMuext		//创建互斥量，包括事件和信号量
+31:CloseMuext		//关闭信号量，只有最先创建的进程才可以关闭
+32:SetEvent		//设置事件为有信号
+33:Wait			//等待一个事件
+34:ReleaseSemaphore	//释放一个信号量，CreateMutex和ReleaseSemaphore组成一套P、V操作

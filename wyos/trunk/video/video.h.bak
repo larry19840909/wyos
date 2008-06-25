@@ -1,0 +1,94 @@
+/***************************************************************************
+			WYOS video.h
+			显示驱动头文件
+						编码:WY.lslrt				editor	 :WY.lslrt
+						日期:2005/12/2			date	 :2005/12/2
+						版权:WY 和 WY.lslrt所有 	copyright:WY and WY.lslrt
+***************************************************************************/
+#ifndef	_WYOS_VIDEO_H
+#define	_WYOS_VIDEO_H
+
+int	WY_nVideoPos;	//当前显示地址
+int	WY_nCharChara;	//字符属性
+
+#define	VIDEO_TEXT_BASE_ADDR	0xB8000	//文本模式下显示内存区域的基地址
+#define	VIDEO_TEXT_MAX_ADDR	0xF9F	//文本模式下最大的显示相对地址
+
+//print.asm中ShowChar函数
+extern void ShowChar(char *WY_pDisplay,char WY_chDisp);
+
+//video显示驱动初始化函数
+void wyos_video_int();
+
+//清屏
+void	ClearVideo();
+
+//滚屏
+void ScrollVideo();
+
+//设置字符显示属性
+//WY_usFRGB		字符前景色
+//WY_bHighLight	是否高亮显示TRUE高亮
+//WY_usBRGB	字符背景色
+//WY_bBlink		是否闪烁显示TRUE闪烁
+//返回值设置过后的字符属性
+char SetCharCharacterEx(ushort	WY_usFRGB,
+					             BOOL	WY_bHighLight,
+						      ushort 	WY_usBRGB,
+						      BOOL 	WY_bBlink);
+
+//设置字符显示属性
+//WY_cCharChara		指定的字符属性
+void SetCharaCHaracter(char WY_cCharChara);
+
+#define	VIDEO_CHAR_BLACKBLUE		0x1
+#define	VIDEO_CHAR_BLACKRED		0x4
+#define	VIDEO_CHAR_BLACKWHITE	0x7
+#define	VIDEO_CHAR_BLACKYELLO	0xE
+#define	VIDEO_CHAR_WHITEBLACK	0x70
+#define	VIDEO_CHAR_WHITERED		0x74
+
+#define	VIDEO_RGB_BLACK			0x0
+#define	VIDEO_RGB_BLUE			0x1
+#define	VIDEO_RGB_GREEN			VIDEO_RGB_BLUE + 1
+#define	VIDEO_RGB_DARKBLUE		VIDEO_RGB_GREEN + 1
+#define	VIDEO_RGB_RED				VIDEO_RGB_DARKBLUE + 1
+#define	VIDEO_RGB_FUCHSIN			VIDEO_RGB_RED + 1
+#define	VIDEO_RGB_BROWN			VIDEO_RGB_FUCHSIN + 1
+#define	VIDEO_RGB_WHITE			VIDEO_RGB_BROWN + 1
+#define	VIDEO_RGB_LIGHTGRAY		VIDEO_RGB_WHITE + 1
+#define	VIDEO_RGB_LIGHTBLUE		VIDEO_RGB_LIGHTGRAY + 1
+#define	VIDEO_RGB_LIGHTGREEN		VIDEO_RGB_LIGHTBLUE + 1
+#define	VIDEO_RGB_LIGHTCYAN		VIDEO_RGB_LIGHTGREEN + 1
+#define	VIDEO_RGB_LIGHTRED		VIDEO_RGB_LIGHTCYAN + 1
+#define	VIDEO_RGB_LIGHTFUCHSIN	VIDEO_RGB_LIGHTRED + 1
+#define	VIDEO_RGB_YELLO			VIDEO_RGB_LIGHTFUCHSIN + 1
+#define	VIDEO_RGB_LIGHTWHITE		VIDEO_RGB_YELLO + 1
+
+//输出一个字符
+//WY_cDisp	希望输出的字符
+void putc(char WY_cDisp);
+
+//输出一个字符串
+//WY_szDisp	希望输出的字符串
+void puts(char *WY_szDisp);
+
+//输出一个数字
+//WY_nDisp 希望输出的数字
+//WY_bFullPrn是否输出全部例如TRUE: 123 putn : 00000000123
+//FALSE: 123 putn : 123
+void putn(int WY_nDisp,BOOL WY_bFullPrn);
+
+//按照16进制输出数字
+void putx(int WY_nDisp);
+
+//格式化输出字符串
+void printk(char* WY_pcfmt,...);
+
+//系统调用接口打印字符
+ulong sysputc(pSyscallParam WY_pInputParam);
+
+//系统调用接口清屏
+ulong syscls(pSyscallParam WY_pInputParam);
+#endif
+
