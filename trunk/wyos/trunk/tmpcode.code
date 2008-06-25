@@ -1,0 +1,196 @@
+	//	printf("TSS Addr:%x\n",&WY_KnlTSS);
+
+	WY_pKnlDesc = (WY_pSystemDesc)0x2018;	
+
+	WY_pKnlDesc->WY_ulLowSegLimit = 0x68;
+	WY_pKnlDesc->WY_ulLowSegBase = (ulong)(&WY_KnlTSS) & 0xFFFFFF;
+	WY_pKnlDesc->WY_ulSegTYPE = 0x9;
+	WY_pKnlDesc->WY_ulDescType = 0;
+	WY_pKnlDesc->WY_ulDescDPL = 0;
+	WY_pKnlDesc->WY_ulPresent = 1;
+	WY_pKnlDesc->WY_ulHighSegLimit = 0;
+	WY_pKnlDesc->WY_ulSoftUse = 0;
+	WY_pKnlDesc->WY_ulReserved = 0;
+	WY_pKnlDesc->WY_ulD = 0;
+	WY_pKnlDesc->WY_ulGranularity = 0;
+	WY_pKnlDesc->WY_ulHighSegBase = (ulong)(&WY_KnlTSS) >> 24;
+
+	WY_KnlTSS.WY_ulCR3 = 0x0;
+	WY_KnlTSS.WY_ulLDT = 0x0;
+	WY_KnlTSS.WY_ulEIP = 0;
+	WY_KnlTSS.WY_ulEFLAGS = 0;
+	WY_KnlTSS.WY_ulES = 0;
+	WY_KnlTSS.WY_ulCS = 0;
+	WY_KnlTSS.WY_ulDS = 0;
+	WY_KnlTSS.WY_ulFS = 0;
+	WY_KnlTSS.WY_ulGS = 0;
+	WY_KnlTSS.WY_ulSS = 0;
+	WY_KnlTSS.WY_ulESP = 0;
+	
+	__asm__("ltr %%ax" : : "a" (0x18));
+
+	WY_pKnlDesc = (WY_pSystemDesc)0x2020;	
+	WY_pKnlDesc->WY_ulLowSegLimit = 0x68;
+	WY_pKnlDesc->WY_ulLowSegBase = (ulong)(&WY_TimeTSS) & 0xFFFFFF;
+	WY_pKnlDesc->WY_ulSegTYPE = 0x9;
+	WY_pKnlDesc->WY_ulDescType = 0;
+	WY_pKnlDesc->WY_ulDescDPL = 0;
+	WY_pKnlDesc->WY_ulPresent = 1;
+	WY_pKnlDesc->WY_ulHighSegLimit = 0;
+	WY_pKnlDesc->WY_ulSoftUse = 0;
+	WY_pKnlDesc->WY_ulReserved = 0;
+	WY_pKnlDesc->WY_ulD = 0;
+	WY_pKnlDesc->WY_ulGranularity = 0;
+	WY_pKnlDesc->WY_ulHighSegBase = (ulong)(&WY_TimeTSS) >> 24;
+
+	WY_pStack  = mallock(0x1000); //申请时钟中断堆栈
+	
+	WY_TimeTSS.WY_ulCR3 = 0;
+	WY_TimeTSS.WY_ulEIP = (ulong)TestInterrupt;
+	WY_TimeTSS.WY_ulEFLAGS = 0x202;
+	WY_TimeTSS.WY_ulES = 0x10;
+	WY_TimeTSS.WY_ulCS = 0x8;
+	WY_TimeTSS.WY_ulDS = 0x10;
+	WY_TimeTSS.WY_ulFS = 0x10;
+	WY_TimeTSS.WY_ulGS = 0x10;
+	WY_TimeTSS.WY_ulSS = 0x10;
+	WY_TimeTSS.WY_ulESP = (ulong)WY_pStack + 0x1000;
+
+	//设置任务1   的任务结构
+	WY_pTaskDesc = allocGlobalDesc(FALSE);
+
+	WY_pTaskDesc->WY_ulPresent = 1;
+
+	WY_pTaskDesc++;
+
+	WY_pTaskDesc->WY_ulLowSegLimit = 0x68;
+	WY_pTaskDesc->WY_ulLowSegBase = (ulong)(&WY_Task[0].WY_TaskTSS) & 0xFFFFFF;
+	WY_pTaskDesc->WY_ulSegTYPE = 0x9;
+	WY_pTaskDesc->WY_ulDescType = 0;
+	WY_pTaskDesc->WY_ulPresent = 1;
+	WY_pTaskDesc->WY_ulHighSegLimit = 0;
+	WY_pTaskDesc->WY_ulSoftUse = 0;
+	WY_pTaskDesc->WY_ulReserved = 0;
+	WY_pTaskDesc->WY_ulD = 0;
+	WY_pTaskDesc->WY_ulGranularity = 0;
+	WY_pTaskDesc->WY_ulHighSegBase = (ulong)(&WY_Task[0].WY_TaskTSS) >> 24;
+
+	//申请堆栈
+	WY_pStack = mallock(0x1000);
+
+	//申请页目录项
+	WY_nTaskPDT = (int*)mallock(0x1000);
+	for(WY_nloop = 0;WY_nloop < 1024;WY_nloop++)
+	{
+		WY_nTaskPDT[WY_nloop] = 0;
+	}
+	WY_nTaskPDT[0] = (WY_ulPTEBase[0] & 0xFFFFF000) | 0x001;
+
+	WY_Task[0].WY_ulPID = 0;
+	WY_Task[0].WY_ulTSSSel = (ulong)WY_pTaskDesc - WYOS_GDT_BASE;
+	WY_Task[0].WY_ulTick = 1;
+	WY_Task[0].WY_ulTime = 1;
+	WY_Task[0].WY_IsUseable = TRUE;
+	WY_Task[0].WY_TaskTSS.WY_ulCR3 = (ulong)WY_nTaskPDT;
+	WY_Task[0].WY_TaskTSS.WY_ulCS = 0x8;
+	WY_Task[0].WY_TaskTSS.WY_ulDS = 0x10;
+	WY_Task[0].WY_TaskTSS.WY_ulES = 0x10;
+	WY_Task[0].WY_TaskTSS.WY_ulFS = 0x10;
+	WY_Task[0].WY_TaskTSS.WY_ulGS = 0x10;
+	WY_Task[0].WY_TaskTSS.WY_ulLDT = 0;
+	WY_Task[0].WY_TaskTSS.WY_ulEFLAGS = 0x202;
+	WY_Task[0].WY_TaskTSS.WY_ulSS = 0x10;
+	WY_Task[0].WY_TaskTSS.WY_ulESP = (ulong)WY_pStack + 0x1000;
+	WY_Task[0].WY_TaskTSS.WY_ulEIP = (ulong)TestTask1;
+
+	//设置任务2   的任务结构
+	WY_pTaskDesc = allocGlobalDesc(FALSE);
+	WY_pTaskDesc->WY_ulPresent = 1;
+
+	WY_pTaskDesc++;
+
+	WY_pTaskDesc->WY_ulLowSegLimit = 0x68;
+	WY_pTaskDesc->WY_ulLowSegBase = (ulong)(&WY_Task[1].WY_TaskTSS) & 0xFFFFFF;
+	WY_pTaskDesc->WY_ulSegTYPE = 0x9;
+	WY_pTaskDesc->WY_ulDescType = 0;
+	WY_pTaskDesc->WY_ulPresent = 1;
+	WY_pTaskDesc->WY_ulHighSegLimit = 0;
+	WY_pTaskDesc->WY_ulSoftUse = 0;
+	WY_pTaskDesc->WY_ulReserved = 0;
+	WY_pTaskDesc->WY_ulD = 0;
+	WY_pTaskDesc->WY_ulGranularity = 0;
+	WY_pTaskDesc->WY_ulHighSegBase = (ulong)(&WY_Task[1].WY_TaskTSS) >> 24;
+
+	WY_pStack = mallock(0x1000);
+	//申请页目录项
+	WY_nTaskPDT = (int*)mallock(0x1000);
+	for(WY_nloop = 0;WY_nloop < 1024;WY_nloop++)
+	{
+		WY_nTaskPDT[WY_nloop] = 0;
+	}
+	WY_nTaskPDT[0] = (WY_ulPTEBase[0] & 0xFFFFF000) | 0x001;
+	
+	WY_Task[1].WY_ulPID = 1;
+	WY_Task[1].WY_ulTSSSel = (ulong)WY_pTaskDesc - WYOS_GDT_BASE;
+	WY_Task[1].WY_ulTick = 3;
+	WY_Task[1].WY_ulTime = 3;
+	WY_Task[1].WY_IsUseable = TRUE;
+	WY_Task[1].WY_TaskTSS.WY_ulCR3 = (ulong)WY_nTaskPDT;
+	WY_Task[1].WY_TaskTSS.WY_ulCS = 0x8;
+	WY_Task[1].WY_TaskTSS.WY_ulDS = 0x10;
+	WY_Task[1].WY_TaskTSS.WY_ulES = 0x10;
+	WY_Task[1].WY_TaskTSS.WY_ulFS = 0x10;
+	WY_Task[1].WY_TaskTSS.WY_ulGS = 0x10;
+	WY_Task[1].WY_TaskTSS.WY_ulLDT = 0;
+	WY_Task[1].WY_TaskTSS.WY_ulEFLAGS = 0x202;
+	WY_Task[1].WY_TaskTSS.WY_ulSS = 0x10;
+	WY_Task[1].WY_TaskTSS.WY_ulESP = (ulong)WY_pStack + 0x1000;
+	WY_Task[1].WY_TaskTSS.WY_ulEIP = (ulong)TestTask2;
+
+	//设置任务3   的任务结构
+	WY_pTaskDesc = allocGlobalDesc(FALSE);
+	WY_pTaskDesc->WY_ulPresent = 1;
+
+	WY_pTaskDesc++;
+
+	WY_pTaskDesc->WY_ulLowSegLimit = 0x68;
+	WY_pTaskDesc->WY_ulLowSegBase = (ulong)(&WY_Task[2].WY_TaskTSS) & 0xFFFFFF;
+	WY_pTaskDesc->WY_ulSegTYPE = 0x9;
+	WY_pTaskDesc->WY_ulDescType = 0;
+	WY_pTaskDesc->WY_ulPresent = 1;
+	WY_pTaskDesc->WY_ulHighSegLimit = 0;
+	WY_pTaskDesc->WY_ulSoftUse = 0;
+	WY_pTaskDesc->WY_ulReserved = 0;
+	WY_pTaskDesc->WY_ulD = 0;
+	WY_pTaskDesc->WY_ulGranularity = 0;
+	WY_pTaskDesc->WY_ulHighSegBase = (ulong)(&WY_Task[2].WY_TaskTSS) >> 24;
+
+	WY_pStack = mallock(0x1000);
+	//申请页目录项
+	WY_nTaskPDT = (int*)mallock(0x1000);
+	for(WY_nloop = 0;WY_nloop < 1024;WY_nloop++)
+	{
+		WY_nTaskPDT[WY_nloop] = 0;
+	}
+	WY_nTaskPDT[0] = (WY_ulPTEBase[0] & 0xFFFFF000) | 0x001;
+	
+	WY_Task[2].WY_ulPID = 2;
+	WY_Task[2].WY_ulTSSSel = (ulong)WY_pTaskDesc - WYOS_GDT_BASE;
+	WY_Task[2].WY_ulTick = 5;
+	WY_Task[2].WY_ulTime = 5;
+	WY_Task[2].WY_IsUseable = TRUE;
+	WY_Task[2].WY_TaskTSS.WY_ulCR3 = (ulong)WY_nTaskPDT;
+	WY_Task[2].WY_TaskTSS.WY_ulCS = 0x8;
+	WY_Task[2].WY_TaskTSS.WY_ulDS = 0x10;
+	WY_Task[2].WY_TaskTSS.WY_ulES = 0x10;
+	WY_Task[2].WY_TaskTSS.WY_ulFS = 0x10;
+	WY_Task[2].WY_TaskTSS.WY_ulGS = 0x10;
+	WY_Task[2].WY_TaskTSS.WY_ulLDT = 0;
+	WY_Task[2].WY_TaskTSS.WY_ulEFLAGS = 0x202;
+	WY_Task[2].WY_TaskTSS.WY_ulSS = 0x10;
+	WY_Task[2].WY_TaskTSS.WY_ulESP = (ulong)WY_pStack + 0x1000;
+	WY_Task[2].WY_TaskTSS.WY_ulEIP = (ulong)TestTask3;
+
+	wyos_close_int();
+	SetInterrupt(0, 0x20,0, GATE_TASK, 0x20);
+	OpenHardInt(0);

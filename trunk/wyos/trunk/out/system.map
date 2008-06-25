@@ -1,0 +1,339 @@
+Archive member included because of file (symbol)
+
+out/extern.a(video.o)         out/kernel.o (wyos_video_int)
+out/extern.a(mm.o)            out/kernel.o (meminit)
+out/extern.a(syscall.o)       out/kernel.o (wyos_init_syscall)
+out/extern.a(proc.o)          out/extern.a(mm.o) (WY_usCurrentPID)
+out/extern.a(block.o)         out/extern.a(proc.o) (WY_BlockQueue)
+out/extern.a(msg.o)           out/extern.a(proc.o) (KReciveMessage)
+out/extern.a(mutex.o)         out/extern.a(proc.o) (SpinLock)
+out/extern.a(string.o)        out/extern.a(video.o) (itoaf)
+out/extern.a(print.o)         out/extern.a(video.o) (ShowChar)
+out/extern.a(exp.o)           out/extern.a(mm.o) (PageException)
+out/extern.a(math.o)          out/extern.a(proc.o) (swap)
+out/driver.a(cpu.o)           out/kernel.o (cpuinit)
+out/driver.a(io.o)            out/driver.a(cpu.o) (Init8259)
+out/driver.a(driver.o)        out/kernel.o (DriverInit)
+out/driver.a(floppy.o)        out/extern.a(exp.o) (WY_bFDInit)
+out/driver.a(dma.o)           out/driver.a(floppy.o) (SetDMAChannel)
+out/driver.a(thread.o)        out/driver.a(floppy.o) (KCreateThread)
+out/driver.a(fat12.o)         out/kernel.o (Fat12Init)
+
+Allocating common symbols
+Common symbol       size              file
+
+WY_PRIQueue         0x20              out/extern.a(proc.o)
+WY_FileQueue        0x140             out/driver.a(fat12.o)
+WY_DirQueue         0x140             out/driver.a(fat12.o)
+WY_BlockQueue       0x40              out/extern.a(block.o)
+WY_Clusterbuf       0x10              out/driver.a(fat12.o)
+WY_nVideoPos        0x10              out/kernel.o
+wyos_syscall_func_table
+                    0x100             out/extern.a(syscall.o)
+WY_PROCTABLE        0x40000           out/extern.a(proc.o)
+WY_nCharChara       0x10              out/kernel.o
+WY_TimeTSS          0x70              out/driver.a(io.o)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+Address of section .text set to 0x100000
+LOAD out/head.o
+LOAD out/kernel.o
+LOAD out/extern.a
+LOAD out/driver.a
+
+.text           0x00100000     0x8c00
+ *(.text)
+ .text          0x00100000       0xf1 out/head.o
+                0x00100000                WYOSEntry
+ *fill*         0x001000f1        0xf 00
+ .text          0x00100100      0x160 out/kernel.o
+                0x00100189                main
+ .text          0x00100260      0x4c0 out/extern.a(video.o)
+                0x001006e3                sysputc
+                0x00100260                wyos_video_int
+                0x0010043f                putc
+                0x0010052e                puts
+                0x001002ff                ScrollVideo
+                0x001003c5                SetCharCharacterEx
+                0x00100428                SetCharaCHaracter
+                0x001005e2                printk
+                0x00100705                syscls
+                0x001005b6                putx
+                0x00100558                putn
+                0x001002ab                ClearVideo
+ .text          0x00100720     0x2ce0 out/extern.a(mm.o)
+                0x001017b4                allocrec_free
+                0x001033e1                SyscallFree
+                0x001033bd                SyscallMalloc
+                0x00100dc8                ConstructUseRecord
+                0x00101f1f                InsertRec_free
+                0x0010082a                meminit
+                0x0010198f                InsertRec_use
+                0x0010247c                DeleteRec_free
+                0x0010136e                UnmappedLinear
+                0x00103323                frees
+                0x00102ec1                freemem
+                0x001032d5                mallock
+                0x001029b3                mallocmem
+                0x001025bc                AllocPage
+                0x00100f09                ConstructFreeRecord
+                0x00101419                LineartToPhy
+                0x00103374                PageExpProc
+                0x001028a7                FreePage
+                0x00100f60                PhyToLinear
+                0x001032ef                freek
+                0x00103309                mallocs
+                0x001033b3                SyscallGetMmInfo
+                0x001028f6                ClearupFreeChain
+                0x001027c8                AllocPhyPage
+                0x00101481                allocrec_use
+                0x00102058                DeleteRec_use
+ .text          0x00103400      0x130 out/extern.a(syscall.o)
+                0x00103514                SetupSyscall
+                0x00103400                wyos_init_syscall
+                0x0010349a                SysCall_C_Func
+ .text          0x00103530     0x1840 out/extern.a(proc.o)
+                0x0010399e                InitProcCtrTable
+                0x00104899                MasterScheudler
+                0x001038e8                AllocProcTable
+                0x0010354f                InitProc
+                0x001038d8                GetCurrentPID
+                0x00103a11                ConstructProcTable
+                0x001049c6                TaskScheudler
+ .text          0x00104d70      0x6a0 out/extern.a(block.o)
+                0x00105093                UnblockThread
+                0x0010532b                CheckBlockQueue
+                0x00104d70                BlockThread
+                0x001053c9                SleepKnl
+ .text          0x00105410      0x4b0 out/extern.a(msg.o)
+                0x0010575e                KReciveMessage
+                0x00105410                KSendMessage
+                0x00105886                SendMsgSyscall
+ .text          0x001058c0       0x80 out/extern.a(mutex.o)
+                0x001058c0                SpinLock
+                0x0010590b                ReleaseSpinLock
+ .text          0x00105940      0x530 out/extern.a(string.o)
+                0x00105d43                strcat
+                0x00105d98                strcmp
+                0x00105b87                vsprintf
+                0x00105d69                strncat
+                0x00105968                itoaf
+                0x00105e10                Upper
+                0x00105d22                strncpy
+                0x00105b32                atoi
+                0x00105dfb                memcpy
+                0x00105de8                memset
+                0x001059df                itoap
+                0x00105d09                strcpy
+                0x00105dbd                strncmp
+                0x00105940                strlen
+                0x00105a9b                htoa
+ .text          0x00105e70       0x18 out/extern.a(print.o)
+                0x00105e70                ShowChar
+ *fill*         0x00105e88        0x8 00
+ .text          0x00105e90       0xb1 out/extern.a(exp.o)
+                0x00105ebb                PageException
+                0x00105ea5                DivError
+                0x00105e90                TimeInterrupt
+                0x00105ed7                SysCall
+                0x00105eeb                FloppyInterrupt
+ *fill*         0x00105f41        0xf 00
+ .text          0x00105f50       0x20 out/extern.a(math.o)
+                0x00105f50                swap
+ .text          0x00105f70      0x530 out/driver.a(cpu.o)
+                0x00106105                UninsInterrupt
+                0x00105fa3                cpuinit
+                0x00106406                allocInterruptGate
+                0x00106494                GetCurrentTick
+                0x00106352                allocGlobalDesc
+                0x00106474                freeInterruptGate
+                0x00106155                TimeInt
+                0x00106012                SetInterrupt
+                0x001063dc                freeGlobalDesc
+ .text          0x001064a0      0x410 out/driver.a(io.o)
+                0x001064bc                WritePortW
+                0x00106509                Init8259
+                0x001064d2                ReadPort
+                0x0010674f                InitTimer
+                0x0010659f                OpenHardInt
+                0x00106678                CloseHardInt
+                0x001064a0                WritePort
+                0x001064f0                ReadPortW
+ .text          0x001068b0       0x40 out/driver.a(driver.o)
+                0x001068c8                DriverInit
+ .text          0x001068f0     0x10d0 out/driver.a(floppy.o)
+                0x0010758f                FDRWCHS
+                0x00106f68                LBAtoCHS
+                0x0010752d                RWProc
+                0x001076d2                FDRWLBA
+                0x00106ffc                FDReset
+                0x00106e6b                SendByte
+                0x00106ee7                GetByte
+                0x0010723f                FDRWSector
+                0x001070d2                FDRecalibrate
+                0x00106ac9                FloppyInit
+                0x00107395                FDRWIntProc
+                0x00107714                InsertToFDRQ
+                0x00106fd0                CHStoLBA
+                0x0010791a                GetFromFDRQ
+                0x0010716c                EnableDrive
+                0x001071bf                DisableDrive
+ .text          0x001079c0      0x340 out/driver.a(dma.o)
+                0x001079c0                InitDMA
+                0x00107c79                OpenDMAChannel
+                0x00107cb8                CloseDMAChannel
+                0x00107a05                SetDMAChannel
+ .text          0x00107d00      0x6e0 out/driver.a(thread.o)
+                0x00107d00                KCreateThread
+                0x001083b6                GetTIDSyscall
+ .text          0x001083e0      0x640 out/driver.a(fat12.o)
+                0x001089c5                match
+                0x001085ca                CheckFileName
+                0x0010841f                Fat12Init
+                0x00108999                GetDirDeep
+                0x0010854d                GetNextCluster
+                0x001087ac                ConstructFullPath
+                0x00108520                ReadCluster
+                0x0010893b                GetFileDirector
+                0x001085b7                KCreateFile
+ *(.text.*)
+ *(.gnu.linkonce.t*)
+ *(.const*)
+ *(.ro*)
+ *(.gnu.linkonce.r*)
+                0x00108a20                etext = .
+                0x00108a20                PROVIDE (_etext, .)
+                0x00108c00                . = ALIGN (0x200)
+ *fill*         0x00108a20      0x1e0 00
+
+.data           0x00108c00      0x200
+                0x00108c00                djgpp_first_ctor = .
+ *(SORT(.ctors.*))
+ *(.ctor)
+ *(.ctors)
+                0x00108c00                djgpp_last_ctor = .
+                0x00108c00                djgpp_first_dtor = .
+ *(SORT(.dtors.*))
+ *(.dtor)
+ *(.dtors)
+                0x00108c00                djgpp_last_dtor = .
+                0x00108c00                __environ = .
+                0x00108c00                PROVIDE (_environ, .)
+                0x00108c00        0x4 LONG 0x0
+ *(.data)
+ *fill*         0x00108c04        0xc 00
+ .data          0x00108c10       0x10 out/extern.a(proc.o)
+                0x00108c10                WY_ulTableLock
+ .data          0x00108c20       0x10 out/driver.a(cpu.o)
+ .data          0x00108c30       0x10 out/driver.a(floppy.o)
+                0x00108c30                WY_bFDHDir
+ *(.data.*)
+ *(.gcc_exc*)
+                0x00108c40                ___EH_FRAME_BEGIN__ = .
+ *(.eh_fram*)
+                0x00108c40                ___EH_FRAME_END__ = .
+                0x00108c40        0x4 LONG 0x0
+ *(.gnu.linkonce.d*)
+                0x00108c44                edata = .
+                0x00108c44                PROVIDE (_edata, .)
+                0x00108e00                . = ALIGN (0x200)
+ *fill*         0x00108c44      0x1bc 00
+
+.bss            0x00108e00    0x40600
+ *(.bss .bss.* .gnu.linkonce.b.*)
+ .bss           0x00108e00       0x30 out/extern.a(mm.o)
+                0x00108e04                WY_nPhyMemPagesNum
+                0x00108e08                WY_pFreeMemFirstRec
+                0x00108e0c                WY_pFreeMemLastRec
+                0x00108e00                WY_nUseableMemory
+ .bss           0x00108e30        0x4 out/extern.a(proc.o)
+                0x00108e30                WY_usCurrentPID
+ .bss           0x00108e34       0x10 out/driver.a(cpu.o)
+ .bss           0x00108e44       0xe0 out/driver.a(floppy.o)
+                0x00108e64                WY_UPQueue
+                0x00108e4c                WY_bFDInt
+                0x00108e48                WY_ulFDOpFun
+                0x00108e50                WY_pCurrRQ
+                0x00108ea4                WY_DOWNQueue
+                0x00108e44                WY_bFDInit
+ *(COMMON)
+ COMMON         0x00108f24       0x20 out/kernel.o
+                0x00108f24                WY_nVideoPos
+                0x00108f34                WY_nCharChara
+ COMMON         0x00108f44      0x100 out/extern.a(syscall.o)
+                0x00108f44                wyos_syscall_func_table
+ COMMON         0x00109044    0x40020 out/extern.a(proc.o)
+                0x00109044                WY_PRIQueue
+                0x00109064                WY_PROCTABLE
+ COMMON         0x00149064       0x40 out/extern.a(block.o)
+                0x00149064                WY_BlockQueue
+ COMMON         0x001490a4       0x70 out/driver.a(io.o)
+                0x001490a4                WY_TimeTSS
+ COMMON         0x00149114      0x290 out/driver.a(fat12.o)
+                0x00149114                WY_FileQueue
+                0x00149254                WY_DirQueue
+                0x00149394                WY_Clusterbuf
+                0x001493a4                end = .
+                0x001493a4                PROVIDE (_end, .)
+                0x00149400                . = ALIGN (0x200)
+ *fill*         0x001493a4       0x5c 00
+
+.stab
+ *(.stab)
+
+.stabstr
+ *(.stabstr)
+
+.debug_aranges
+ *(.debug_aranges)
+
+.debug_pubnames
+ *(.debug_pubnames)
+
+.debug_info
+ *(.debug_info)
+ *(.gnu.linkonce.wi.*)
+
+.debug_abbrev
+ *(.debug_abbrev)
+
+.debug_line
+ *(.debug_line)
+
+.debug_frame
+ *(.debug_frame)
+
+.debug_str
+ *(.debug_str)
+
+.debug_loc
+ *(.debug_loc)
+
+.debug_macinfo
+ *(.debug_macinfo)
+OUTPUT(out/kernel.ld coff-go32-exe)
+
+.comment        0x00149400      0x154
+ .comment       0x00149400       0x14 out/kernel.o
+ .comment       0x00149414       0x14 out/extern.a(video.o)
+ .comment       0x00149428       0x14 out/extern.a(mm.o)
+ .comment       0x0014943c       0x14 out/extern.a(syscall.o)
+ .comment       0x00149450       0x14 out/extern.a(proc.o)
+ .comment       0x00149464       0x14 out/extern.a(block.o)
+ .comment       0x00149478       0x14 out/extern.a(msg.o)
+ .comment       0x0014948c       0x14 out/extern.a(mutex.o)
+ .comment       0x001494a0       0x14 out/extern.a(string.o)
+ .comment       0x001494b4       0x14 out/extern.a(math.o)
+ .comment       0x001494c8       0x14 out/driver.a(cpu.o)
+ .comment       0x001494dc       0x14 out/driver.a(io.o)
+ .comment       0x001494f0       0x14 out/driver.a(driver.o)
+ .comment       0x00149504       0x14 out/driver.a(floppy.o)
+ .comment       0x00149518       0x14 out/driver.a(dma.o)
+ .comment       0x0014952c       0x14 out/driver.a(thread.o)
+ .comment       0x00149540       0x14 out/driver.a(fat12.o)
