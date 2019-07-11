@@ -39,7 +39,7 @@ WYOS实现了以下功能
 WYOS/trunk
    |---boot <dir>               引导代码，实模式到保护模式切换，加载系统内核，并跳转至内核执行
    |---driver <dir>             驱动代码
-   |     |---disk <dir>          软驱驱动代码
+   |     |---disk <dir>         软驱驱动代码
    |---fs <dir>                 fat12文件系统代码
    |---include <dir>            头文件
    |---io <dir>                 io控制代码，DMA控制器驱动
